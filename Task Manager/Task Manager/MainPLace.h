@@ -1,7 +1,11 @@
 #pragma once
 #include "addtask.h"
 #include <Windows.h>
+#include <iostream>
+#include <string>
+#include <string.h>
 #include <fstream>
+#include <time.h>
 
 namespace TaskManager {
 
@@ -152,6 +156,7 @@ namespace TaskManager {
 			this->tabControl1->SelectedIndex = 0;
 			this->tabControl1->Size = System::Drawing::Size(600, 197);
 			this->tabControl1->TabIndex = 6;
+			this->tabControl1->BackColor = Color::Linen;
 			// 
 			// dateTimePicker1
 			// 
@@ -237,20 +242,119 @@ namespace TaskManager {
 
 		}
 #pragma endregion
-		//создание массива
-	private: array<System::Windows::Forms::Label^>^ MakeArray(int razm, int x, int y);
-		   ///добавить элемент массива
-	private: array <System::Windows::Forms::Label^>^ AddElem(array <System::Windows::Forms::Label^>^ arr, int razm);
-		   //удалить элемент массива
-	private: array <System::Windows::Forms::Label^>^ RemElem(array <System::Windows::Forms::Label^>^ arr, int razm, int num);
+		   //удаление элемента массива
+	private: array <System::Windows::Forms::Label^>^ RemElem(array <System::Windows::Forms::Label^>^ arr, int razm, int num) {
+		array <System::Windows::Forms::Label^>^ local = MakeArray(razm, 7, 7);
+		int j = 0;
+		for (int i = 0; i < razm; i++) {
+			if (i != num) {
+				local[j] = arr[i];
+				local[j]->Location = System::Drawing::Point(arr[i]->Location.X, arr[i]->Location.Y);
+				j++;
+			}
+		}
+		delete[] arr;
+		return local;
+	}
+		   //добавление элемента массива
+	private: array <System::Windows::Forms::Label^>^ AddElem(array <System::Windows::Forms::Label^>^ arr, int razm) {
+		array <System::Windows::Forms::Label^>^ local = MakeArray(razm + 1, 7, 7);
+		int x = arr[0]->Location.X, y = arr[0]->Location.Y;
+		for (int i = 0; i < razm - 1; i++) {
+			local[i] = arr[i];
+		}
+		for (int i = 0; i < razm; i++) {
+			local[i]->Location = System::Drawing::Point(x, y);
+		}
+		delete[] arr;
+		return local;
+	}
+		   //добавление элемента массива
+	private: array <array<String^>^>^ AddElem(array <array<String^>^>^ arr, int *razm) {
+		array<array<String^>^>^ new_arr = gcnew array<array<String^>^>(3);
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < *razm; j++) {
+				new_arr[i][j] = arr[i][j];
+			}
+		}
+		++* razm;
+		delete[] arr;
+		return new_arr;
+	}
+		   //создание массива
+	private: array<System::Windows::Forms::Label^>^ MakeArray(int razm, int x, int y) {
+
+		array<System::Windows::Forms::Label^>^ local = gcnew array<System::Windows::Forms::Label^ >(razm);
+		for (int i = 0; i < razm; i++) {
+			local[i] = gcnew System::Windows::Forms::Label;
+			local[i]->AutoSize = true;
+			local[i]->Location = System::Drawing::Point(x, y);
+			local[i]->Name = L"label";
+			local[i]->Size = System::Drawing::Size(0, 13);
+			local[i]->TabIndex = i;
+		}
+		return local;
+	}
 		   //цвета приложени€
-	private: Color^ back_theme = Color::DimGray;
+	private: Color^ back_theme = Color::Linen;
 		   //количество заданий
 	private: int amount_task = 1;
+		   //сохры
+	private: String^ str;
+		   //данные
+	private: int amount_data = 1;
+	private: array <array<String^>^>^ data = gcnew array<array<String^>^>(3);
 		   //массив типов заданий
-	private: array <System::Windows::Forms::Label^>^ types_of_tasks = MakeArray(amount_task, 7, 7);
+	private: array <System::Windows::Forms::Label^>^ types_of_tasks = MakeArray(amount_task + 1, 7, 7);
 		   //массив текстов заданий
-	private: array <System::Windows::Forms::Label^>^ texts_of_tasks = MakeArray(amount_task, 7, 30);
+	private: array <System::Windows::Forms::Label^>^ texts_of_tasks = MakeArray(amount_task + 1, 7, 30);
+		//чтение сохраненых данных
+	public: void ReadSaveData() {
+		for (int i = 0; i < 3; i++) {
+			data[i] = gcnew array<String^>(1);
+			data[i][0] = "";
+		}
+		std::ifstream save_file("C:\\ѕользователи\\даниил\\ƒокументы\\SaveData.txt");
+		if(save_file.is_open()) {
+			bool title = false, type = false, text = false;
+			while (!save_file.eof()) {
+				std::string a = "";
+				std::getline(save_file, a);
+				if (a == "**Title**") {
+					title = true;
+					type = false;
+					text = false;
+					continue;
+				}
+				else if (a == "**Type**") {
+					title = false;
+					type = true;
+					text = false;
+					continue;
+				}
+				else if (a == "**Text**") {
+					title = false;
+					text = false;
+					type = true;
+					continue;
+				}
+				if (title) {
+					data[0][amount_data - 1] = gcnew System::String(a.c_str());
+				}
+				else if (type) {
+					data[1][amount_data - 1] = gcnew System::String(a.c_str());
+				}
+				else if(text) {
+					data[2][amount_data - 1] = gcnew System::String(a.c_str());
+				}
+				std::cout << a << std::endl;
+			}
+			save_file.close();
+		}
+		else {
+			MessageBox::Show("все пизда");
+		}
+	}
 		   //кнопка добавлени€ задани€
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		addtask task;
@@ -282,20 +386,21 @@ namespace TaskManager {
 		   //удаление задани€
 	private: System::Void button3_Click_1(System::Object^ sender, System::EventArgs^ e) {
 		try {
+			tabControl1->Controls->RemoveAt(tabControl1->SelectedIndex);
 			types_of_tasks = RemElem(types_of_tasks, amount_task, tabControl1->SelectedIndex);
 			texts_of_tasks = RemElem(texts_of_tasks, amount_task, tabControl1->SelectedIndex);
-			tabControl1->Controls->RemoveAt(tabControl1->SelectedIndex);
 			amount_task--;
 		}
-		catch (System::ArgumentOutOfRangeException^ ex) {
+		catch (System::ArgumentOutOfRangeException^) {
 			MessageBox::Show("You can't remove this task");
 		}
-		catch (System::OverflowException^ ex) {
+		catch (System::OverflowException^) {
 			MessageBox::Show("You can't remove this task");
 		}
 	}
 		   //темна€ тема
 	private: System::Void darkThemeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		tabControl1->BackColor = Color::DimGray;
 		for (int i = 0; i < amount_task; i++) {
 			tabControl1->TabPages[i]->BackColor = Color::DimGray;
 		}
@@ -308,6 +413,7 @@ namespace TaskManager {
 	}
 		   //светла€ тема
 	private: System::Void lightThemeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		tabControl1->BackColor = Color::Linen;
 		for (int i = 0; i < amount_task; i++) {
 			tabControl1->TabPages[i]->BackColor = Color::Linen;
 		}
@@ -317,45 +423,6 @@ namespace TaskManager {
 		lightThemeToolStripMenuItem->BackColor = Color::Cornsilk;
 		darkThemeToolStripMenuItem->BackColor = Color::Cornsilk;
 		themeToolStripMenuItem->BackColor = Color::Cornsilk;
-	}
-
-	private: array <System::Windows::Forms::Label^>^ RemElem(array <System::Windows::Forms::Label^>^ arr, int razm, int num) {
-		array <System::Windows::Forms::Label^>^ local = MakeArray(razm - 1, 7, 7);
-		int j = 0;
-		for (int i = 0; i < razm; i++) {
-			if (i != num) {
-				local[j] = arr[i];
-				local[j]->Location = System::Drawing::Point(arr[i]->Location.X, arr[i]->Location.Y);
-				j++;
-			}
-		}
-		return local;
-	}
-
-	private: array <System::Windows::Forms::Label^>^ AddElem(array <System::Windows::Forms::Label^>^ arr, int razm) {
-		array <System::Windows::Forms::Label^>^ local = MakeArray(razm, 7, 7);
-		int x = arr[0]->Location.X, y = arr[0]->Location.Y;
-		for (int i = 0; i < razm - 1; i++) {
-			local[i] = arr[i];
-		}
-		for (int i = 0; i < razm; i++) {
-			local[i]->Location = System::Drawing::Point(x, y);
-		}
-		return local;
-	}
-
-	private: array<System::Windows::Forms::Label^>^ MakeArray(int razm, int x, int y) {
-
-		array<System::Windows::Forms::Label^>^ local = gcnew array<System::Windows::Forms::Label^ >(razm);
-		for (int i = 0; i < razm; i++) {
-			local[i] = gcnew System::Windows::Forms::Label;
-			local[i]->AutoSize = true;
-			local[i]->Location = System::Drawing::Point(x, y);
-			local[i]->Name = L"label";
-			local[i]->Size = System::Drawing::Size(0, 13);
-			local[i]->TabIndex = i;
-		}
-		return local;
 	}
 	};
 }
