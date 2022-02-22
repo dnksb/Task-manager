@@ -10,6 +10,7 @@ int main() {
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
 	TaskManager::MainPLace form;
+	form.ReadSaveData();
 	Application::Run(% form);
-
+	
 }

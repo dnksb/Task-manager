@@ -15,11 +15,9 @@ namespace TaskManager {
 	/// <summary>
 	/// —водка дл€ MainPLace
 	/// </summary>
-	public ref class MainPLace : public System::Windows::Forms::Form
-	{
+	public ref class MainPLace : public System::Windows::Forms::Form {
 	public:
-		MainPLace(void)
-		{
+		MainPLace(void) {
 			InitializeComponent();
 			//
 			//TODO: добавьте код конструктора
@@ -30,10 +28,8 @@ namespace TaskManager {
 		/// <summary>
 		/// ќсвободить все используемые ресурсы.
 		/// </summary>
-		~MainPLace()
-		{
-			if (components)
-			{
+		~MainPLace() {
+			if (components) {
 				delete components;
 			}
 		}
@@ -70,8 +66,7 @@ namespace TaskManager {
 		/// “ребуемый метод дл€ поддержки конструктора Ч не измен€йте 
 		/// содержимое этого метода с помощью редактора кода.
 		/// </summary>
-		void InitializeComponent(void)
-		{
+		void InitializeComponent(void) {
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MainPLace::typeid));
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->button3 = (gcnew System::Windows::Forms::Button());
@@ -243,19 +238,11 @@ namespace TaskManager {
 		}
 #pragma endregion
 		//создание массива
-	private: array<System::Windows::Forms::Label^>^ MakeArray(int razm, int x, int y) {
-
-		array<System::Windows::Forms::Label^>^ local = gcnew array<System::Windows::Forms::Label^ >(razm);
-		for (int i = 0; i < razm; i++) {
-			local[i] = gcnew System::Windows::Forms::Label;
-			local[i]->AutoSize = true;
-			local[i]->Location = System::Drawing::Point(x, y);
-			local[i]->Name = L"label";
-			local[i]->Size = System::Drawing::Size(0, 13);
-			local[i]->TabIndex = i;
-		}
-		return local;
-	}
+	private: array<System::Windows::Forms::Label^>^ MakeArray(int razm, int x, int y);
+		   ///добавить элемент массива
+	private: array <System::Windows::Forms::Label^>^ AddElem(array <System::Windows::Forms::Label^>^ arr, int razm);
+		   //удалить элемент массива
+	private: array <System::Windows::Forms::Label^>^ RemElem(array <System::Windows::Forms::Label^>^ arr, int razm, int num);
 		   //цвета приложени€
 	private: Color^ back_theme = Color::DimGray;
 		   //количество заданий
@@ -264,31 +251,6 @@ namespace TaskManager {
 	private: array <System::Windows::Forms::Label^>^ types_of_tasks = MakeArray(amount_task, 7, 7);
 		   //массив текстов заданий
 	private: array <System::Windows::Forms::Label^>^ texts_of_tasks = MakeArray(amount_task, 7, 30);
-		   ///добавить элемент массива
-	private: array <System::Windows::Forms::Label^>^ AddElem(array <System::Windows::Forms::Label^>^ arr, int razm) {
-		array <System::Windows::Forms::Label^>^ local = MakeArray(razm, 7, 7);
-		int x = arr[0]->Location.X, y = arr[0]->Location.Y;
-		for (int i = 0; i < razm - 1; i++) {
-			local[i] = arr[i];
-		}
-		for (int i = 0; i < razm; i++) {
-			local[i]->Location = System::Drawing::Point(x, y);
-		}
-		return local;
-	}
-		   //удалить элемент массива
-	private: array <System::Windows::Forms::Label^>^ RemElem(array <System::Windows::Forms::Label^>^ arr, int razm, int num) {
-		array <System::Windows::Forms::Label^>^ local = MakeArray(razm - 1, 7, 7);
-		int j = 0;
-		for (int i = 0; i < razm; i++) {
-			if (i != num) {
-				local[j] = arr[i];
-				local[j]->Location = System::Drawing::Point(arr[i]->Location.X, arr[i]->Location.Y);
-				j++;
-			}
-		}
-		return local;
-	}
 		   //кнопка добавлени€ задани€
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		addtask task;
@@ -299,7 +261,7 @@ namespace TaskManager {
 			String^ Text = task.GetText();
 			if (Name == "") {
 				Name = "Task " + (amount_task + 1);
-			} 
+			}
 			if (Type == "") {
 				Type = "wihout type";
 			}
@@ -355,6 +317,45 @@ namespace TaskManager {
 		lightThemeToolStripMenuItem->BackColor = Color::Cornsilk;
 		darkThemeToolStripMenuItem->BackColor = Color::Cornsilk;
 		themeToolStripMenuItem->BackColor = Color::Cornsilk;
+	}
+
+	private: array <System::Windows::Forms::Label^>^ RemElem(array <System::Windows::Forms::Label^>^ arr, int razm, int num) {
+		array <System::Windows::Forms::Label^>^ local = MakeArray(razm - 1, 7, 7);
+		int j = 0;
+		for (int i = 0; i < razm; i++) {
+			if (i != num) {
+				local[j] = arr[i];
+				local[j]->Location = System::Drawing::Point(arr[i]->Location.X, arr[i]->Location.Y);
+				j++;
+			}
+		}
+		return local;
+	}
+
+	private: array <System::Windows::Forms::Label^>^ AddElem(array <System::Windows::Forms::Label^>^ arr, int razm) {
+		array <System::Windows::Forms::Label^>^ local = MakeArray(razm, 7, 7);
+		int x = arr[0]->Location.X, y = arr[0]->Location.Y;
+		for (int i = 0; i < razm - 1; i++) {
+			local[i] = arr[i];
+		}
+		for (int i = 0; i < razm; i++) {
+			local[i]->Location = System::Drawing::Point(x, y);
+		}
+		return local;
+	}
+
+	private: array<System::Windows::Forms::Label^>^ MakeArray(int razm, int x, int y) {
+
+		array<System::Windows::Forms::Label^>^ local = gcnew array<System::Windows::Forms::Label^ >(razm);
+		for (int i = 0; i < razm; i++) {
+			local[i] = gcnew System::Windows::Forms::Label;
+			local[i]->AutoSize = true;
+			local[i]->Location = System::Drawing::Point(x, y);
+			local[i]->Name = L"label";
+			local[i]->Size = System::Drawing::Size(0, 13);
+			local[i]->TabIndex = i;
+		}
+		return local;
 	}
 	};
 }
